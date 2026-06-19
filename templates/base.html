@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>云端轨迹 · Cloud Trails</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <a href="/" class="sidebar-logo">
+          <img src="/static/logo.svg" alt="云端轨迹" class="logo-img">
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/cat/0" class="nav-item {% if current_cat_id == 0 or not current_cat %}active{% endif %}">
+          <span class="nav-icon">📚</span>
+          <span class="nav-label">全部笔记</span>
+          <span class="nav-count">{{ all_count }}</span>
+        </a>
+        <div class="nav-divider"></div>
+        {% for cat in categories %}
+        <a href="/cat/{{ cat.id }}" class="nav-item {% if current_cat and current_cat.id == cat.id %}active{% endif %}">
+          <span class="nav-icon">{{ cat.icon }}</span>
+          <span class="nav-label">{{ cat.name }}</span>
+          <span class="nav-count">{{ cat.post_count }}</span>
+        </a>
+        {% endfor %}
+        <div class="nav-divider"></div>
+        <button class="nav-add" onclick="toggleNewCat()">
+          <span class="nav-icon">+</span>
+          <span class="nav-label">新建分类</span>
+        </button>
+        <form id="new-cat-form" class="new-cat-form" method="POST" action="/cat/new" style="display:none">
+          <div class="icon-picker" id="icon-picker">
+            {% for e in emoji_icons[:9] %}
+            <span class="icon-option" onclick="pickIcon('{{ e }}')">{{ e }}</span>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="icon" id="cat-icon" value="📁">
+          <input type="text" name="name" placeholder="分类名称" required autocomplete="off">
+          <button type="submit">创建</button>
+        </form>
+      </nav>
+    </aside>
+    <div class="main-area">
+      <header class="topbar">
+        <button class="hamburger" onclick="toggleSidebar()" title="菜单">☰</button>
+        <form class="search-form" action="/cat/{{ current_cat_id or 0 }}" method="GET">
+          <input type="search" name="q" value="{{ current_query or '' }}" placeholder="搜索笔记…" class="search-input">
+        </form>
+        <a href="/new/{{ current_cat_id or 0 }}" class="btn-new">+ 新笔记</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="切换日间/夜间模式" id="theme-btn">🌙</button>
+      </header>
+      <div class="content">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  <script>
+  var theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'light' ? '☀️' : '🌙';
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    document.getElementById('theme-btn').textContent = next === 'light' ? '☀️' : '🌙';
+  }
+
+  function toggleSidebar() {
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.querySelector('.sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  }
+
+  function toggleNewCat() {
+    var f = document.getElementById('new-cat-form');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  }
+  function pickIcon(icon) {
+    document.getElementById('cat-icon').value = icon;
+    var opts = document.querySelectorAll('.icon-option');
+    opts.forEach(function(o) { o.classList.remove('picked'); });
+    event.target.classList.add('picked');
+  }
+  </script>
+</body>
+</html>

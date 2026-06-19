@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content-head">
+  <h2>{% if current_cat %}{{ current_cat.icon }} {{ current_cat.name }}{% else %}📚 全部笔记{% endif %}</h2>
+  <span class="content-count">{{ posts|length }} 篇</span>
+</div>
+
+{% if current_tag or current_query %}
+<div class="filter-banner">
+  {% if current_tag %}🏷️ {{ current_tag }}{% endif %}
+  {% if current_query %}🔍 {{ current_query }}{% endif %}
+  <a href="/cat/{{ current_cat_id or 0 }}" class="clear-filter">清除筛选</a>
+</div>
+{% endif %}
+
+{% if tags %}
+<div class="tag-row">
+  {% for tag in tags %}
+  <a href="/cat/{{ current_cat_id or 0 }}?tag={{ tag.name }}"
+     class="tag-chip{% if tag.name == current_tag %} active{% endif %}">
+    {{ tag.name }} {{ tag.count }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if posts %}
+<div class="post-list">
+  {% for post in posts %}
+  {% set ptags = get_tags(post.id) %}
+  {% set pcat = None %}
+  {% if post.category_id != None %}
+    {% for c in categories %}{% if c.id == post.category_id %}{% set pcat = c %}{% endif %}{% endfor %}
+  {% endif %}
+  <a href="/post/{{ post.id }}" class="post-card">
+    <div class="post-card-main">
+      <h3>{{ post.title }}</h3>
+      <p class="post-preview">{{ post.content[:120] }}{% if post.content|length > 120 %}…{% endif %}</p>
+    </div>
+    <div class="post-card-meta">
+      {% if pcat %}
+      <span class="post-cat-badge">{{ pcat.icon }} {{ pcat.name }}</span>
+      {% endif %}
+      {% for t in ptags %}
+      <span class="post-tag-badge">{{ t }}</span>
+      {% endfor %}
+      <span class="post-date">{{ post.updated_at }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p>{% if current_tag or current_query %}没有匹配的笔记{% else %}这个分类下还没有笔记{% endif %}</p>
+  <a href="/new/{{ current_cat_id or 0 }}" class="btn-primary">写一篇</a>
+</div>
+{% endif %}
+{% endblock %}

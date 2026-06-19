@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ post.title }} · 云端轨迹</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body class="post-page">
+  <div class="post-shell">
+    <div class="post-head">
+      <a href="/cat/{{ post.category_id or 0 }}" class="back-link">← 返回</a>
+      {% if cat %}
+      <span class="post-cat-label">{{ cat.icon }} {{ cat.name }}</span>
+      {% endif %}
+      <button class="theme-toggle small" onclick="toggleTheme()" title="日/夜" id="theme-btn">🌙</button>
+    </div>
+    <article>
+      <h1 class="post-title">{{ post.title }}</h1>
+      <div class="post-meta">
+        <span>{{ post.created_at }}</span>
+        {% if post.updated_at != post.created_at %}
+        <span>· 更新于 {{ post.updated_at }}</span>
+        {% endif %}
+      </div>
+      {% set ptags = get_tags(post.id) %}
+      {% if ptags %}
+      <div class="post-tags-row">
+        {% for t in ptags %}
+        <a href="/cat/{{ post.category_id or 0 }}?tag={{ t }}" class="tag-chip small">{{ t }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="post-body markdown-body">
+        {{ render_md(post.content) }}
+      </div>
+    </article>
+    <div class="post-actions">
+      <a href="/edit/{{ post.id }}" class="btn-primary">✏️ 编辑</a>
+      <form action="/delete/{{ post.id }}" method="POST" onsubmit="return confirm('确定删除？')" style="display:inline">
+        <button type="submit" class="btn-danger">🗑️ 删除</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  var theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'light' ? '☀️' : '🌙';
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    document.getElementById('theme-btn').textContent = next === 'light' ? '☀️' : '🌙';
+  }
+  </script>
+</body>
+</html>

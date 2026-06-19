@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 · 云端轨迹</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="/static/logo.svg" alt="云端轨迹" style="height:36px">
+    </div>
+    <h2>请输入密码</h2>
+    <form method="POST" action="/login">
+      <input type="password" name="password" placeholder="密码" required autofocus class="login-input">
+      {% if error %}
+      <p class="login-error">{{ error }}</p>
+      {% endif %}
+      <button type="submit" class="btn-primary login-btn">进入</button>
+    </form>
+  </div>
+
+  <script>
+  var theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if post %}编辑{% else %}新笔记{% endif %} · 云端轨迹</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="editor-page">
+  <div class="editor-shell">
+    <div class="editor-head">
+      <a href="/cat/{{ post.category_id or preselected_cat or 0 }}" class="back-link">← 返回</a>
+      <h1>{% if post %}编辑笔记{% else %}写新笔记{% endif %}</h1>
+      <button class="theme-toggle small" onclick="toggleTheme()" title="日/夜" id="theme-btn">🌙</button>
+    </div>
+    <form method="POST" class="editor-form">
+      <div class="editor-row">
+        <input type="text" name="title" value="{{ post.title if post else '' }}" placeholder="标题…" required autofocus class="editor-title">
+        <select name="category_id" class="editor-cat">
+          <option value="">📚 未分类</option>
+          {% for cat in get_categories() %}
+          {% set sel = (post and post.category_id == cat.id) or (not post and preselected_cat == cat.id) %}
+          <option value="{{ cat.id }}" {% if sel %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="text" name="tags" value="{% if post %}{{ get_tags(post.id)|join(', ') }}{% endif %}" placeholder="标签，逗号分隔…" class="editor-tags">
+      <div class="editor-toolbar">
+        <button type="button" onclick="insertMd('**','**')" title="加粗">B</button>
+        <button type="button" onclick="insertMd('*','*')" title="斜体">I</button>
+        <button type="button" onclick="insertMd('`','`')" title="行内代码">&lt;/&gt;</button>
+        <button type="button" onclick="insertMd('\n```python\n','\n```\n')" title="代码块">{ }</button>
+        <button type="button" onclick="insertMd('\n> ','')" title="引用">❝</button>
+        <button type="button" onclick="insertMd('\n- ','')" title="列表">•</button>
+        <button type="button" onclick="insertMd('\n## ','')" title="二级标题">H2</button>
+        <button type="button" onclick="insertMd('[','](url)')" title="链接">🔗</button>
+        <button type="button" id="upload-btn" title="上传图片">🖼️</button>
+        <input type="file" id="image-upload" accept="image/*" style="display:none">
+      </div>
+      <textarea name="content" required placeholder="Markdown 内容…&#10;&#10;# 大标题&#10;## 二级标题&#10;&#10;正文内容，支持 **加粗** *斜体* `代码`&#10;&#10;```python&#10;print('代码块')&#10;```&#10;&#10;拖拽图片到此处或点击 🖼️ 上传" class="editor-textarea">{{ post.content if post else '' }}</textarea>
+      <div class="editor-actions">
+        <button type="submit" class="btn-primary">💾 {% if post %}保存{% else %}发布{% endif %}</button>
+        <a href="/cat/{{ post.category_id or preselected_cat or 0 }}" class="btn-cancel">取消</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+  var theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'light' ? '☀️' : '🌙';
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    document.getElementById('theme-btn').textContent = next === 'light' ? '☀️' : '🌙';
+  }
+
+  function insertMd(before, after) {
+    var ta = document.querySelector('.editor-textarea');
+    var s = ta.selectionStart, e = ta.selectionEnd;
+    var t = ta.value, sel = t.substring(s, e);
+    ta.value = t.substring(0, s) + before + sel + after + t.substring(e);
+    ta.focus();
+    var np = s + before.length + sel.length + after.length;
+    ta.setSelectionRange(sel ? np : s + before.length, np);
+  }
+  document.getElementById('upload-btn').addEventListener('click', function() {
+    document.getElementById('image-upload').click();
+  });
+  document.getElementById('image-upload').addEventListener('change', async function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var fd = new FormData(); fd.append('file', file);
+    var r = await fetch('/upload', { method: 'POST', body: fd });
+    var d = await r.json();
+    if (d.ok) {
+      var ta = document.querySelector('.editor-textarea');
+      ta.value += '\n' + d.markdown + '\n'; ta.focus();
+    } else { alert('上传失败: ' + d.error); }
+    e.target.value = '';
+  });
+  document.querySelector('.editor-textarea').addEventListener('dragover', function(e) { e.preventDefault(); });
+  document.querySelector('.editor-textarea').addEventListener('drop', async function(e) {
+    e.preventDefault();
+    var file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    var fd = new FormData(); fd.append('file', file);
+    var r = await fetch('/upload', { method: 'POST', body: fd });
+    var d = await r.json();
+    if (d.ok) {
+      var ta = document.querySelector('.editor-textarea');
+      ta.value += '\n' + d.markdown + '\n'; ta.focus();
+    } else { alert('上传失败: ' + d.error); }
+  });
+  </script>
+</body>
+</html>

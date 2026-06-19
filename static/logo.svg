@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+  <!-- 云朵 -->
+  <g transform="translate(10,5)">
+    <ellipse cx="25" cy="28" rx="18" ry="12" fill="url(#cloudGrad)" opacity="0.9"/>
+    <ellipse cx="45" cy="22" rx="22" ry="15" fill="url(#cloudGrad)" opacity="0.85"/>
+    <ellipse cx="62" cy="28" rx="16" ry="11" fill="url(#cloudGrad)" opacity="0.9"/>
+    <rect x="27" y="27" width="38" height="14" rx="2" fill="url(#cloudGrad)"/>
+  </g>
+  <!-- 轨迹线 -->
+  <g transform="translate(10,5)">
+    <path d="M 75 45 Q 85 38 95 42 Q 105 46 115 40 Q 125 34 130 38" 
+          stroke="#7c3aed" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="75" cy="45" r="3" fill="#2563eb"/>
+    <circle cx="130" cy="38" r="4" fill="#7c3aed"/>
+  </g>
+  <!-- 文字 -->
+  <text x="105" y="42" font-family="'PingFang SC','Microsoft YaHei',sans-serif" 
+        font-size="20" font-weight="700" fill="#1a1a2e">云端轨迹</text>
+</svg>
