@@ -269,5 +269,3 @@ sudo systemctl status cloudtrails   # 检查状态
 个人项目，随意使用修改。
 
 ---
-
-> 全程由 [Hermes Agent](https://hermes-agent.nousresearch.com) 协助开发 🚀
