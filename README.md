@@ -81,7 +81,7 @@ python3 init_db.py
 编辑 `app.py` 第 14 行：
 
 ```python
-PASSWORD = 'zsj123456'   # 改成你自己的密码
+PASSWORD = '你的密码'   # 改成你自己的密码
 ```
 
 ### 5. 启动服务
